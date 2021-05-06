@@ -3,7 +3,10 @@
 //Controlador frontal, recoge parámetros get por url, carga el archivo y método al que pertenecen
 
 session_start();
+
+//Acceso a todos los controladores
 require_once 'autoload.php';
+
 require_once 'config/db.php';
 require_once 'config/parameters.php';
 require_once 'helpers/utils.php';
@@ -16,6 +19,7 @@ function show_error(){
     $error->index();
 }
 
+//Comprobar que llega el controlador por la url y generar variable
 if (isset($_GET['controller'])){
     $nombre_controlador = $_GET['controller'].'Controller';
 
@@ -27,9 +31,11 @@ if (isset($_GET['controller'])){
     exit();
 }
 
+//Comprobar que esxiste la clase del controlador y crear objeto
 if(class_exists($nombre_controlador)){
     $controlador = new $nombre_controlador();
 
+    //Comprobar que llega la acción y el método existe
     if(isset($_GET['action']) && method_exists($controlador, $_GET['action'])){
         $action = $_GET['action'];
         $controlador->$action();

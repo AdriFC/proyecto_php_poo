@@ -5,12 +5,14 @@ require_once 'models/producto.php';
 class productoController{
 
     public function index(){
+
         //Renderizar vista
         require_once 'views/producto/destacados.php';
     }
 
     public function gestion(){
 
+        //Comprobar que el usuario logueado tiene rol de admin
         Utils :: isAdmin();
 
         $producto = new Producto();
@@ -22,6 +24,7 @@ class productoController{
 
     public function crear(){
 
+        //Comprobar que el usuario logueado tiene rol de admin
         Utils :: isAdmin();
 
         //Cargar vista
@@ -30,12 +33,72 @@ class productoController{
 
     public function save(){
         
+        //Comprobar que el usuario logueado tiene rol de admin
         Utils :: isAdmin();
         
+        //Comprobar que llegan los datos por post desde el formulario de la vista y crear variables para los datos
         if(isset($_POST)){
-            var_dump($_POST);
+
+            $nombre = isset($_POST['nombre']) ? $_POST['nombre'] : false;
+            $descripcion = isset($_POST['descripcion']) ? $_POST['descripcion'] : false;
+            $precio = isset($_POST['precio']) ? $_POST['precio'] : false;
+            $stock = isset($_POST['stock']) ? $_POST['stock'] : false;
+            $categoria = isset($_POST['categoria']) ? $_POST['categoria'] : false;
+            //$imagen = isset($_POST['imagen']) ? $_POST['imagen'] : false;
+
+            //Comprobar que llegan todos los datos, setear valores en el objeto y guardar
+            if($nombre && $descripcion && $precio && $stock && $categoria){
+
+                $producto = new Producto();
+                $producto->setNombre($nombre);
+                $producto->setDescripcion($descripcion);
+                $producto->setPrecio($precio);
+                $producto->setStock($stock);
+                $producto->setCategoriaId($categoria);
+
+                //Guardar la imagen
+                $file = $_FILES['imagen'];
+                $filename = $file['name'];
+                $mimetype = $file['type'];
+
+                // var_dump($file);
+                // die();
+
+                if($mimetype == "image/jpg" || $mimetype == "image/jpeg" || $mimetype == "image/png" || $mimetype == "image/gif"){
+
+                    // var_dump($file); die();
+
+                    if(!is_dir('uploads/images')){
+                        mkdir('uploads/images', 0777, true);
+                    }
+
+                    $producto->setImagen($filename);
+                    move_uploaded_file($file['tmp_name'], 'uploads/images/'.$filename);
+                    
+                }
+
+                $save = $producto->save();
+                if($save){
+
+                    $_SESSION['producto'] = "complete";
+                }else{
+
+                    $_SESSION['producto'] = "failed";
+                }
+
+            }else{
+
+                $_SESSION['producto'] = "failed";
+            }
+        }else{
+
+            $_SESSION['producto'] = "failed";
         }
+
+        header('Location:'.base_url.'producto/gestion');
     }
+
+    
 
 }
 
