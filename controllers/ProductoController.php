@@ -57,27 +57,41 @@ class productoController{
                 $producto->setCategoriaId($categoria);
 
                 //Guardar la imagen
-                $file = $_FILES['imagen'];
-                $filename = $file['name'];
-                $mimetype = $file['type'];
+                if(isset($_FILES['imagen'])){
 
-                // var_dump($file);
-                // die();
+                    $file = $_FILES['imagen'];
+                    $filename = $file['name'];
+                    $mimetype = $file['type'];
 
-                if($mimetype == "image/jpg" || $mimetype == "image/jpeg" || $mimetype == "image/png" || $mimetype == "image/gif"){
+                    // var_dump($file);
+                    // die();
 
-                    // var_dump($file); die();
+                    if($mimetype == "image/jpg" || $mimetype == "image/jpeg" || $mimetype == "image/png" || $mimetype == "image/gif"){
 
-                    if(!is_dir('uploads/images')){
-                        mkdir('uploads/images', 0777, true);
+                        // var_dump($file); die();
+
+                        if(!is_dir('uploads/images')){
+                            mkdir('uploads/images', 0777, true);
+                        }
+
+                        $producto->setImagen($filename);
+                        move_uploaded_file($file['tmp_name'], 'uploads/images/'.$filename);
+                        
                     }
-
-                    $producto->setImagen($filename);
-                    move_uploaded_file($file['tmp_name'], 'uploads/images/'.$filename);
-                    
                 }
 
-                $save = $producto->save();
+                if(isset($_GET['id'])){
+
+                    $id = $_GET['id'];
+                    $producto->setId($id);
+                    $save = $producto->edit();
+
+                }else{
+
+                    $save = $producto->save();
+                }
+
+                
                 if($save){
 
                     $_SESSION['producto'] = "complete";
@@ -100,7 +114,23 @@ class productoController{
 
     public function editar(){
 
-        var_dump($_GET);
+        Utils :: isAdmin();
+        if(isset($_GET['id'])){
+
+            $id = $_GET['id'];
+            $edit = true;
+
+            $producto = new Producto;
+            $producto->setId($id);
+
+            $pro = $producto->getOne();
+
+            require_once 'views/producto/crear.php';
+
+        }else{
+
+            header('Location:'.base_url.'producto/gestion');
+        }
     }
 
     public function eliminar(){
