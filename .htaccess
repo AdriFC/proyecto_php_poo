@@ -3,6 +3,9 @@
 RewriteEngine on
 ErrorDocument 404 http://localhost/master-php/proyecto_php_poo/error/
 
+# php_value error_reporting 2
+# php_flag display_errors On
+
 RewriteCond %{SCRIPT_FILENAME} !-d
 RewriteCond %{SCRIPT_FILENAME} !-f
 
