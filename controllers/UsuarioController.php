@@ -82,7 +82,7 @@ class usuarioController{
         if(isset($_SESSION['admin'])){
             unset($_SESSION['admin']);
         }
-
+       
         header("Location:".base_url);
     }
 
